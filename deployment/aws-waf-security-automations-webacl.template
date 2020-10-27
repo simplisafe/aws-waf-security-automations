@@ -35,6 +35,8 @@ Parameters:
     Type: String
   ActivateBadBotProtectionParam:
     Type: String
+  DefaultAction:
+    Type: String
   RequestThreshold:
     Type: Number
   RegionScope:
@@ -62,6 +64,14 @@ Conditions:
   AWSManagedRulesActivated: !Equals
     - !Ref ActivateAWSManagedRulesParam
     - 'yes'
+
+  DefaultActionIsAllow: !Equals
+    - !Ref DefaultAction
+    - "Allow"
+
+  DefaultActionIsBlock: !Equals
+    - !Ref DefaultAction
+    - "Block"
 
   SqlInjectionProtectionActivated: !Equals
     - !Ref ActivateSqlInjectionProtectionParam
@@ -394,7 +404,8 @@ Resources:
         CloudWatchMetricsEnabled: true
         MetricName: !Join ['', [!Join ['', !Split ['-', !Ref ParentStackName]], 'WAFWebACL']]
       DefaultAction:
-        Allow: {}
+        Allow: !If [DefaultActionIsAllow, {}, !Ref "AWS::NoValue"]
+        Block: !If [DefaultActionIsBlock, {}, !Ref "AWS::NoValue"]
       Rules:
         - !If
           - AWSManagedRulesActivated
