@@ -44,6 +44,7 @@ Metadata:
       - Label:
           default: Advanced Settings
         Parameters:
+          - DefaultAction
           - ErrorThreshold
           - RequestThreshold
           - WAFBlockPeriod
@@ -74,6 +75,9 @@ Metadata:
 
       ActivateBadBotProtectionParam:
         default: Activate Bad Bot Protection
+
+      DefaultAction:
+        default: Default Action of Web ACL
 
       EndpointType:
         default: Endpoint Type
@@ -166,6 +170,16 @@ Parameters:
       - 'yes'
       - 'no'
     Description: Choose yes to enable the component designed to block bad bots and content scrapers.
+
+  DefaultAction:
+    Type: String
+    Default: "Allow"
+    AllowedValues:
+      - "Allow"
+      - "Block"
+    Description: >-
+      Set to Allow to allow traffic that is not matched by any rule in the WAF web ACL. Set to
+      Block to block this traffic instead.
 
   EndpointType:
     Type: String
@@ -394,6 +408,7 @@ Resources:
         ActivateScannersProbesProtectionParam: !Ref ActivateScannersProbesProtectionParam
         ActivateReputationListsProtectionParam: !Ref ActivateReputationListsProtectionParam
         ActivateBadBotProtectionParam: !Ref ActivateBadBotProtectionParam
+        DefaultAction: !Ref DefaultAction
         RequestThreshold: !Ref RequestThreshold
         RegionScope: !If [AlbEndpoint, 'REGIONAL', 'CLOUDFRONT']
         ParentStackName: !Ref 'AWS::StackName'
