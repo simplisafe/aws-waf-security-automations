@@ -48,6 +48,10 @@ Metadata:
           - RequestThreshold
           - WAFBlockPeriod
           - KeepDataInOriginalS3Location
+          - WAFBlacklistSetV4Addresses
+          - WAFBlacklistSetV6Addresses
+          - WAFWhitelistSetV4Addresses
+          - WAFWhitelistSetV6Addresses
 
     ParameterLabels:
       ActivateAWSManagedRulesParam:
@@ -83,8 +87,20 @@ Metadata:
       RequestThreshold:
         default: Request Threshold
 
+      WAFBlacklistSetV4Addresses:
+        default: IPv4 Address Blacklist
+
+      WAFBlacklistSetV6Addresses:
+        default: IPv6 Address Blacklist
+
       WAFBlockPeriod:
         default: WAF Block Period
+
+      WAFWhitelistSetV4Addresses:
+        default: IPv4 Address Whitelist
+
+      WAFWhitelistSetV6Addresses:
+        default: IPv6 Address Whitelist
 
       KeepDataInOriginalS3Location:
         default: Keep Data in Original s3 location
@@ -189,6 +205,20 @@ Parameters:
       you can use any value greater than zero). If you chose to deactivate this protection, ignore
       this parameter.
 
+  WAFBlacklistSetV4Addresses:
+    Type: CommaDelimitedList
+    Default: ""
+    Description:  >-
+      A list of IPv4 addresses to explicitly disallow from reaching resources protected by the web
+      ACL. Ignore this parameter to prevent any IPv4 addresses from being explicitly disallowed.
+
+  WAFBlacklistSetV6Addresses:
+    Type: CommaDelimitedList
+    Default: ""
+    Description:  >-
+      A list of IPv6 addresses to explicitly disallow from reaching resources protected by the web
+      ACL. Ignore this parameter to prevent any IPv6 addresses from being explicitly disallowed.
+
   WAFBlockPeriod:
     Type: Number
     Default: 240
@@ -197,6 +227,22 @@ Parameters:
       If you chose yes for the Activate Scanners & Probes Protection or HTTP Flood Lambda/Athena log
       parser parameters, enter the period (in minutes) to block applicable IP addresses. If you
       chose to deactivate log parsing, ignore this parameter.
+
+  WAFWhitelistSetV4Addresses:
+    Type: CommaDelimitedList
+    Default: ""
+    Description:  >-
+      A list of IPv4 addresses to explicitly allow to reach resources protected by the web ACL.
+      Addresses on this list will bypass all other protections, and always be allowed through.
+      Ignore this parameter to prevent any IPv4 addresses from being explicitly allowed.
+
+  WAFWhitelistSetV6Addresses:
+    Type: CommaDelimitedList
+    Default: ""
+    Description:  >-
+      A list of IPv6 addresses to explicitly allow to reach resources protected by the web ACL.
+      Addresses on this list will bypass all other protections, and always be allowed through.
+      Ignore this parameter to prevent any IPv4 addresses from being explicitly allowed.
 
   KeepDataInOriginalS3Location:
     Type: String
@@ -355,6 +401,10 @@ Resources:
         GlueAppAccessLogsTable: !If [ScannersProbesAthenaLogParser, !GetAtt FirehoseAthenaStack.Outputs.GlueAppAccessLogsTable, '']
         GlueWafAccessLogsTable: !If [HttpFloodAthenaLogParser, !GetAtt FirehoseAthenaStack.Outputs.GlueWafAccessLogsTable,'']
         LogLevel: !FindInMap ["Solution", "Data", "LogLevel"]
+        WAFBlacklistSetV4Addresses: !Join [",", !Ref WAFBlacklistSetV4Addresses]
+        WAFBlacklistSetV6Addresses: !Join [",", !Ref WAFBlacklistSetV6Addresses]
+        WAFWhitelistSetV4Addresses: !Join [",", !Ref WAFWhitelistSetV4Addresses]
+        WAFWhitelistSetV6Addresses: !Join [",", !Ref WAFWhitelistSetV6Addresses]
 
 
 

@@ -49,6 +49,14 @@ Parameters:
     Type: String
   LogLevel:
     Type: String
+  WAFBlacklistSetV4Addresses:
+    Type: CommaDelimitedList
+  WAFBlacklistSetV6Addresses:
+    Type: CommaDelimitedList
+  WAFWhitelistSetV4Addresses:
+    Type: CommaDelimitedList
+  WAFWhitelistSetV6Addresses:
+    Type: CommaDelimitedList
 
 Conditions:
   AWSManagedRulesActivated: !Equals
@@ -98,6 +106,22 @@ Conditions:
   BadBotProtectionActivated: !Equals
     - !Ref ActivateBadBotProtectionParam
     - 'yes'
+
+  WAFBlacklistSetV4AddressesEmpty: !Equals
+    - !Join [",", !Ref WAFBlacklistSetV4Addresses]
+    - ""
+
+  WAFBlacklistSetV6AddressesEmpty: !Equals
+    - !Join [",", !Ref WAFBlacklistSetV6Addresses]
+    - ""
+
+  WAFWhitelistSetV4AddressesEmpty: !Equals
+    - !Join [",", !Ref WAFWhitelistSetV4Addresses]
+    - ""
+
+  WAFWhitelistSetV6AddressesEmpty: !Equals
+    - !Join [",", !Ref WAFWhitelistSetV6Addresses]
+    - ""
 
 Mappings:
   SourceCode:
@@ -192,7 +216,7 @@ Resources:
       IPAddressVersion: 'IPV4'
       Name: !Sub '${ParentStackName}WhitelistSetIPV4'
       Description: 'Allow whitelist for IPV4 addresses'
-      Addresses: []
+      Addresses: !If [WAFWhitelistSetV4AddressesEmpty, [], !Ref WAFWhitelistSetV4Addresses]
 
   WAFBlacklistSetV4:
     Type: 'AWS::WAFv2::IPSet'
@@ -202,7 +226,7 @@ Resources:
       IPAddressVersion: 'IPV4'
       Name: !Sub '${ParentStackName}BlacklistSetIPV4'
       Description: 'Block blacklist for IPV4 addresses'
-      Addresses: []
+      Addresses: !If [WAFBlacklistSetV4AddressesEmpty, [], !Ref WAFBlacklistSetV4Addresses]
 
   WAFHttpFloodSetV4:
     Type: 'AWS::WAFv2::IPSet'
@@ -260,7 +284,7 @@ Resources:
       IPAddressVersion: IPV6
       Name: !Sub '${ParentStackName}WhitelistSetIPV6'
       Description: 'Allow whitelist for IPV6 addresses'
-      Addresses: []
+      Addresses: !If [WAFWhitelistSetV6AddressesEmpty, [], !Ref WAFWhitelistSetV6Addresses]
 
   WAFBlacklistSetV6:
     Type: 'AWS::WAFv2::IPSet'
@@ -270,7 +294,7 @@ Resources:
       IPAddressVersion: IPV6
       Name: !Sub '${ParentStackName}BlacklistSetIPV6'
       Description: 'Block blacklist for IPV6 addresses'
-      Addresses: []
+      Addresses: !If [WAFBlacklistSetV6AddressesEmpty, [], !Ref WAFBlacklistSetV6Addresses]
 
   WAFHttpFloodSetV6:
     Type: 'AWS::WAFv2::IPSet'
